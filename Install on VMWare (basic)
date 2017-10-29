@@ -1,0 +1,129 @@
+From boot screen 
+boot:
+
+[press enter we are not using new kernels yet]
+
+Keyboard map is US
+
+[press enter]
+
+Slackware login 
+
+root:
+
+root [enter]
+
+-- creating partitions --
+
+cfdisk (easy paritition manager)
+
+Creating first partition:
+
+label type: dos
+Select free space [enter]
+Partition size: 8GB 
+(this is going to be our boot partition, it's where new kernels are stored too)
+Select: [primary]
+
+SDA1 [boot] has been created:
+/dev/sda1 has been created (but not written)
+Highlight [bootable] and press enter to tag BOOT as *
+
+Select Free Space again.
+New [Enter]
+2GB [Primary]
+
+SDA2 [swap] has been created (but is not a swap space yet):
+/dev/sda2 has been created (but not written)
+Select [Type] and select 82 [Linux Swap] (we can talk about location of swap drive if we have alternative drive setups)
+
+Select Free Space again.
+New [Enter]
+Remaining [Primary]
+
+SDA3 [Main Drive] has been created (where all our stuff goes)
+/dev/sda3 has been created (but not written)
+
+Select [Write] and press [Enter] then 'yes' then [Quit]
+
+
+Back to ROOT# 
+setup [enter]
+
+ADDSWAP (we're setting the swap drive using the menu; this can be done with the swapon command also)
+TARGET /dev/sda3 (this is our location for the root /) [Format] to [ext4] (standard journaling system)
+FSTAB (we're not making a new fstab location, we don't have multiple harddrives so just select continue)
+INSTALL from a Slackware CD or DVD (standard)
+AUTO (finds install location, doesn't hurt)
+
+PACKAGE SERIES SELECTION 
+(Here we thin out ur system. I install everything.)
+
+I remove:
+
+[ ] Games
+[ ] XFCE Desktop (we'll go with KDE due to it's support and available software, XFCE is too light)
+
+The rest is stuff we will no dobut at some point poke at, and can sort through later.
+
+
+SELECT PROMPTING MODE 
+
+(FOR NOW) We are going to select 'full'. There is a 'newbie' mode that we can look at later when we are thinning out the OS and removing unnecessary packages. FULL Installs 9GB but Newbie specifically states 'the X series takes one year) it will take several hours to line by line install slack. Useful later when we *know* what we are looking at.
+
+Fortunately the install specifics are well documented and are available to acquire at any other given time easily.
+
+LILO (simple install we're using it to facilitate the boot loader that doesn't exist currently)
+STANDARD (boring linux console)
+
+PASS PARAMS KERNEL (nope)
+USE UTF-8 TEXT CONSOLE? (nope)
+LILO DESTINATION (MBR obvious place)
+MOUSE CONFIGURATION (I set this to USB, you can set it to PS/2 and wrap it but if you use USB you can get Virtualbox to directly capture the mouse input later if need be)
+SETUP NETWORK (yes)
+GPM (Yes; gives you a mouse pointer in CMD)
+HOSTNAME (hostname)
+DOMAIN NAME (anything doesn't matter)
+CONFIGURATION TYPE (I use Network Manager; it utilizes the DAEMON to control the network switch overs / connections)
+ITEMS TO START ON BOOT (Default; have a look through it)
+CUSTOM SCREEN FONTS (YES, have a look through the menu find something you like I like [lat4a-19.psfu.gz])
+HARDWARE CLOCK (prob local time)
+TIMEZONE [Pacific/Auckland]
+SELECT DEFAULT WINDOW MANAGER [initrc.kde] (for now, we have alternatives to look at later)
+
+ADD ROOT PASSWORD []
+REBOOT
+
+YOU HAVE MAIL!
+Root@Slackware:~# mail (have a look through your mail)
+Root@Slackware:~# startx (boot into KDE)
+
+
+AFTER STARTX
+
+Insert VBOXADDONS dvd
+Go to CD and run 'autorun.sh'
+Reboot
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
