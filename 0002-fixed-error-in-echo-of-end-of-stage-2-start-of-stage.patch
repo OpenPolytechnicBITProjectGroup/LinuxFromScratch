@@ -1,0 +1,24 @@
+From 3edae42865247bf051061633376780f7d7f5e6a3 Mon Sep 17 00:00:00 2001
+From: lxdnz254 <lxdnz34@gmail.com>
+Date: Fri, 3 Nov 2017 20:59:06 +1300
+Subject: [PATCH 2/2] fixed error in echo of end of stage 2, start of stage3
+
+---
+ .gitignore | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/.gitignore b/.gitignore
+index 9156ae5..2ad5831 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -9,6 +9,7 @@
+ *.log.*
+ *.sig
+ .*.sh.un~
++*.sh~
+ 
+ pkg/
+ src/
+-- 
+2.9.0
+
