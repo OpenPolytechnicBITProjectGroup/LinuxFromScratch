@@ -20,7 +20,7 @@ bash m4_s3.sh
 bash make_s3.sh
 bash patch_s3.sh
 bash perl_s3.sh
-bash sed_S3.sh
+bash sed_s3.sh
 bash tar_s3.sh
 bash texinfo_s3.sh
 bash util_linux_s3.sh
