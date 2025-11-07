@@ -24,12 +24,12 @@ This repository is being updated to support **LFS 12.4** (released September 202
 - Installation guides for various approaches
 - Modern build documentation
 
-**Latest Version:** [LFS 12.4](https://www.linuxfromscratch.org/lfs/view/stable/) includes:
-- Linux Kernel 6.10.5
+**Latest Version:** [LFS 12.4](https://www.linuxfromscratch.org/lfs/view/stable/) (released September 1, 2025) includes:
+- Linux Kernel 6.15.1
+- GCC 15.2
+- Glibc 2.42
+- Binutils 2.45
 - Python 3.13.7
-- GCC 14.2.0
-- Binutils 2.44
-- Glibc 2.41
 
 ## Build Approaches
 

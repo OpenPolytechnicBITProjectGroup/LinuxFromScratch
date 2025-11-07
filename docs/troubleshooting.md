@@ -551,7 +551,22 @@ mount /dev/sdXY $LFS
 ### Complete Reset
 
 ```bash
-# Nuclear option:
+# Nuclear option - use with extreme caution!
+# ALWAYS verify $LFS is set before running this command
+if [ -z "$LFS" ]; then
+    echo "ERROR: \$LFS is not set! Aborting to prevent system damage."
+    exit 1
+fi
+
+if [ "$LFS" = "/" ]; then
+    echo "ERROR: \$LFS points to root! Aborting."
+    exit 1
+fi
+
+echo "WARNING: This will delete everything in $LFS"
+echo "Press Ctrl+C within 5 seconds to abort..."
+sleep 5
+
 rm -rf $LFS/*
 
 # Start from Chapter 2 again

@@ -8,6 +8,9 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Update and install all required packages for LFS host system
+# Note: Package names are for Ubuntu/Debian. Other distributions may use different names:
+#   - libncurses-dev (Debian/Ubuntu) vs ncurses-devel (RPM-based)
+#   - libssl-dev (Debian/Ubuntu) vs openssl-devel (RPM-based)
 RUN apt-get update && apt-get install -y \
     bash \
     binutils \
@@ -60,27 +63,34 @@ RUN mkdir -pv ${LFS}/{sources,tools,boot,etc,bin,lib,sbin,usr,var} && \
     mkdir -pv ${LFS}/usr/{bin,lib,sbin}
 
 # Create lfs user and group
+# Note: No password is set for security. Use 'docker exec' or 'su - lfs' as root to access.
 RUN groupadd lfs && \
     useradd -s /bin/bash -g lfs -m -k /dev/null lfs && \
-    echo "lfs:lfs" | chpasswd && \
     chown -v lfs ${LFS}/{sources,tools,boot,etc,bin,lib,sbin,usr,var,lib64}
 
 # Set up lfs user environment
 USER lfs
 WORKDIR /home/lfs
 
-RUN echo 'exec env -i HOME=$HOME TERM=$TERM PS1='"'"'\u:\w\$ '"'"' /bin/bash' > ~/.bash_profile && \
-    echo 'set +h' > ~/.bashrc && \
-    echo 'umask 022' >> ~/.bashrc && \
-    echo 'LFS=/mnt/lfs' >> ~/.bashrc && \
-    echo 'LC_ALL=POSIX' >> ~/.bashrc && \
-    echo 'LFS_TGT=$(uname -m)-lfs-linux-gnu' >> ~/.bashrc && \
-    echo 'PATH=/usr/bin' >> ~/.bashrc && \
-    echo 'if [ ! -L /bin ]; then PATH=/bin:$PATH; fi' >> ~/.bashrc && \
-    echo 'PATH=$LFS/tools/bin:$PATH' >> ~/.bashrc && \
-    echo 'CONFIG_SITE=$LFS/usr/share/config.site' >> ~/.bashrc && \
-    echo 'export LFS LC_ALL LFS_TGT PATH CONFIG_SITE' >> ~/.bashrc && \
-    echo 'export MAKEFLAGS="-j$(nproc)"' >> ~/.bashrc
+# Create .bash_profile for lfs user
+RUN cat > ~/.bash_profile << 'EOF'
+exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash
+EOF
+
+# Create .bashrc for lfs user
+RUN cat > ~/.bashrc << 'EOF'
+set +h
+umask 022
+LFS=/mnt/lfs
+LC_ALL=POSIX
+LFS_TGT=$(uname -m)-lfs-linux-gnu
+PATH=/usr/bin
+if [ ! -L /bin ]; then PATH=/bin:$PATH; fi
+PATH=$LFS/tools/bin:$PATH
+CONFIG_SITE=$LFS/usr/share/config.site
+export LFS LC_ALL LFS_TGT PATH CONFIG_SITE
+export MAKEFLAGS="-j$(nproc)"
+EOF
 
 # Switch back to root for final setup
 USER root
@@ -91,38 +101,44 @@ VOLUME ["${LFS}"]
 # Set working directory
 WORKDIR ${LFS}
 
-# Create helper scripts
-RUN echo '#!/bin/bash' > /usr/local/bin/lfs-shell && \
-    echo 'su - lfs' >> /usr/local/bin/lfs-shell && \
-    chmod +x /usr/local/bin/lfs-shell
+# Create helper script: lfs-shell
+RUN cat > /usr/local/bin/lfs-shell << 'EOF' && chmod +x /usr/local/bin/lfs-shell
+#!/bin/bash
+su - lfs
+EOF
 
-RUN echo '#!/bin/bash' > /usr/local/bin/download-sources && \
-    echo 'cd ${LFS}/sources' >> /usr/local/bin/download-sources && \
-    echo 'wget https://www.linuxfromscratch.org/lfs/view/stable/wget-list' >> /usr/local/bin/download-sources && \
-    echo 'wget --input-file=wget-list --continue --directory-prefix=${LFS}/sources' >> /usr/local/bin/download-sources && \
-    echo 'wget https://www.linuxfromscratch.org/lfs/view/stable/md5sums' >> /usr/local/bin/download-sources && \
-    echo 'md5sum -c md5sums' >> /usr/local/bin/download-sources && \
-    chmod +x /usr/local/bin/download-sources
+# Create helper script: download-sources
+RUN cat > /usr/local/bin/download-sources << 'EOF' && chmod +x /usr/local/bin/download-sources
+#!/bin/bash
+cd ${LFS}/sources
+wget https://www.linuxfromscratch.org/lfs/view/stable/wget-list
+wget --input-file=wget-list --continue --directory-prefix=${LFS}/sources
+wget https://www.linuxfromscratch.org/lfs/view/stable/md5sums
+md5sum -c md5sums
+EOF
 
-# Create welcome message
-RUN echo '#!/bin/bash' > /usr/local/bin/welcome && \
-    echo 'echo "=========================================="' >> /usr/local/bin/welcome && \
-    echo 'echo "LFS 12.4 Build Environment"' >> /usr/local/bin/welcome && \
-    echo 'echo "=========================================="' >> /usr/local/bin/welcome && \
-    echo 'echo ""' >> /usr/local/bin/welcome && \
-    echo 'echo "Quick start:"' >> /usr/local/bin/welcome && \
-    echo 'echo "  1. Download sources: download-sources"' >> /usr/local/bin/welcome && \
-    echo 'echo "  2. Switch to lfs user: lfs-shell"' >> /usr/local/bin/welcome && \
-    echo 'echo "  3. Follow LFS book from Chapter 5"' >> /usr/local/bin/welcome && \
-    echo 'echo ""' >> /usr/local/bin/welcome && \
-    echo 'echo "LFS Book: https://www.linuxfromscratch.org/lfs/view/stable/"' >> /usr/local/bin/welcome && \
-    echo 'echo ""' >> /usr/local/bin/welcome && \
-    echo 'echo "Environment:"' >> /usr/local/bin/welcome && \
-    echo 'echo "  LFS=${LFS}"' >> /usr/local/bin/welcome && \
-    echo 'echo "  LFS_TGT=${LFS_TGT}"' >> /usr/local/bin/welcome && \
-    echo 'echo "  MAKEFLAGS=${MAKEFLAGS}"' >> /usr/local/bin/welcome && \
-    echo 'echo ""' >> /usr/local/bin/welcome && \
-    chmod +x /usr/local/bin/welcome
+# Create helper script: welcome message
+RUN cat > /usr/local/bin/welcome << 'EOF' && chmod +x /usr/local/bin/welcome
+#!/bin/bash
+echo "=========================================="
+echo "LFS 12.4 Build Environment"
+echo "=========================================="
+echo ""
+echo "Quick start:"
+echo "  1. Download sources: download-sources"
+echo "  2. Switch to lfs user: lfs-shell"
+echo "  3. Follow LFS book from Chapter 5"
+echo ""
+echo "LFS Book: https://www.linuxfromscratch.org/lfs/view/stable/"
+echo ""
+echo "Environment:"
+echo "  LFS=${LFS}"
+echo "  LFS_TGT=${LFS_TGT}"
+echo "  MAKEFLAGS=${MAKEFLAGS}"
+echo ""
+echo "Note: lfs user has no password. Access via 'lfs-shell' as root."
+echo ""
+EOF
 
 # Set entrypoint to show welcome message
 ENTRYPOINT ["/bin/bash", "-c", "welcome && exec /bin/bash"]

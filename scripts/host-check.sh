@@ -3,7 +3,7 @@
 # Based on LFS 12.4 requirements
 # https://www.linuxfromscratch.org/lfs/view/stable/chapter02/hostreqs.html
 
-set -e
+# Note: Not using 'set -e' because we want to collect all errors before exiting
 
 # Colors for output
 RED='\033[0;31m'
@@ -22,11 +22,11 @@ FAILURES=0
 WARNINGS=0
 
 check_command() {
-    local cmd=$1
-    local min_version=$2
-    local version_flag=${3:---version}
+    local cmd="$1"
+    local min_version="$2"
+    local version_flag="${3:---version}"
 
-    if ! command -v $cmd &> /dev/null; then
+    if ! command -v "$cmd" &> /dev/null; then
         echo -e "${RED}[FAIL]${NC} $cmd not found"
         ((FAILURES++))
         return 1
@@ -36,7 +36,7 @@ check_command() {
 
     # Show version
     if [ "$version_flag" != "none" ]; then
-        version_output=$($cmd $version_flag 2>&1 | head -n1)
+        version_output=$("$cmd" "$version_flag" 2>&1 | head -n1)
         echo "       Version: $version_output"
     fi
 
@@ -203,9 +203,10 @@ echo "======================================"
 echo "Optional but Recommended Tools"
 echo "======================================"
 
-check_command wget "" || true
-check_command vim "" || true
-check_command git "" || true
+# These are optional, so don't increment failure counter
+check_command wget "" 2>/dev/null || echo -e "${YELLOW}[INFO]${NC} wget not found (recommended for downloading sources)"
+check_command vim "" 2>/dev/null || echo -e "${YELLOW}[INFO]${NC} vim not found (recommended for editing)"
+check_command git "" 2>/dev/null || echo -e "${YELLOW}[INFO]${NC} git not found (optional for version control)"
 
 # Check system resources
 echo ""
@@ -216,7 +217,7 @@ echo "======================================"
 # Check CPU cores
 cpu_cores=$(nproc)
 echo "CPU cores: $cpu_cores"
-if [ $cpu_cores -ge 4 ]; then
+if [ "$cpu_cores" -ge 4 ]; then
     echo -e "${GREEN}[GOOD]${NC} 4+ cores available (recommended)"
 else
     echo -e "${YELLOW}[WARN]${NC} Less than 4 cores (build will be slower)"
@@ -226,7 +227,7 @@ fi
 # Check RAM
 total_ram=$(free -g | awk '/^Mem:/{print $2}')
 echo "Total RAM: ${total_ram}GB"
-if [ $total_ram -ge 8 ]; then
+if [ "$total_ram" -ge 8 ]; then
     echo -e "${GREEN}[GOOD]${NC} 8GB+ RAM available (recommended)"
 else
     echo -e "${YELLOW}[WARN]${NC} Less than 8GB RAM (may need swap)"
@@ -237,7 +238,7 @@ fi
 if [ -n "$LFS" ] && [ -d "$LFS" ]; then
     disk_space=$(df -BG "$LFS" | tail -1 | awk '{print $4}' | sed 's/G//')
     echo "Disk space at \$LFS ($LFS): ${disk_space}GB available"
-    if [ $disk_space -ge 30 ]; then
+    if [ "$disk_space" -ge 30 ]; then
         echo -e "${GREEN}[GOOD]${NC} 30GB+ disk space available"
     else
         echo -e "${RED}[FAIL]${NC} Less than 30GB available at \$LFS"
@@ -248,7 +249,7 @@ else
     echo "Checking root partition..."
     disk_space=$(df -BG / | tail -1 | awk '{print $4}' | sed 's/G//')
     echo "Disk space at /: ${disk_space}GB available"
-    if [ $disk_space -ge 40 ]; then
+    if [ "$disk_space" -ge 40 ]; then
         echo -e "${GREEN}[GOOD]${NC} Sufficient space for LFS build"
     else
         echo -e "${YELLOW}[WARN]${NC} May need dedicated partition for LFS"

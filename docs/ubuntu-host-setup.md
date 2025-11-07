@@ -375,9 +375,10 @@ sudo apt install -y libgmp-dev libmpfr-dev libmpc-dev
 
 ### 24.04 LTS Considerations
 
-- Uses GCC 13 by default (perfect for LFS 12.4)
+- Uses GCC 13 by default (meets LFS 12.4 host requirements)
 - Python 3.12 is default (compatible)
-- Modern binutils 2.42 (meets requirements)
+- Modern binutils (meets requirements)
+- Note: Host system versions differ from LFS build target versions
 
 ### 22.04 LTS Considerations
 

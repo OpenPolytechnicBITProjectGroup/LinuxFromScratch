@@ -23,7 +23,7 @@ Your choice significantly impacts system behavior and complexity.
 | **Standard** | De facto modern | LSB official |
 | **Logging** | journald (binary) | Text files |
 | **Service Management** | systemctl | service/init scripts |
-| **Adoption** | 95% of distros | 5% of distros |
+| **Adoption** | Vast majority of distros | Small minority of distros |
 
 ## systemd - Modern Standard
 
